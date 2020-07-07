@@ -49,3 +49,19 @@ async function fetchSentence() {
     console.log(sentence);
     document.getElementById('sentence-container').innerText=sentence;
 }
+
+async function getComments(){
+    const response=await fetch("/data");
+    const comments=await response.json();
+    console.log(comments);
+    const ordered_comments=document.getElementById("ordered_comments");
+    comments.forEach((comment)=>{
+        ordered_comments.appendChild(createListElement(comment));
+    });
+}
+
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
+}

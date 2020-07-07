@@ -26,16 +26,21 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  
+  private ArrayList<String> comments=new ArrayList<String>();
+
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String comment=request.getParameter("comment");
+    comments.add(comment);
+    response.sendRedirect("/index.html");
+  }
+
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ArrayList<String> strs=new ArrayList<String>();
-    strs.add("hello");
-    strs.add("hi");
-    strs.add("good");
+    
     Gson gson = new Gson();
     
-    String json=gson.toJson(strs);
+    String json=gson.toJson(comments);
     
     response.setContentType("application/json;");
 

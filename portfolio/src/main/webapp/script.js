@@ -15,6 +15,21 @@
 /**
  * Adds a random greeting to the page.
  */
+function randomizeImage() {
+  // The images directory contains 13 images, so generate a random index between
+  // 1 and 13.
+  const imageIndex = Math.floor(Math.random() * 3) + 1;
+  const imgUrl = 'images/pic' + imageIndex + '.jpg';
+
+  const imgElement = document.createElement('img');
+  imgElement.src = imgUrl;
+
+  const imageContainer = document.getElementById('random-image-container');
+  // Remove the previous image.
+  imageContainer.innerHTML = '';
+  imageContainer.appendChild(imgElement);
+}
+
 function addRandomGreeting() {
   const greetings =
       ['Hello world!', '¡Hola Mundo!', '你好，世界！', 'Bonjour le monde!'];
@@ -25,4 +40,12 @@ function addRandomGreeting() {
   // Add it to the page.
   const greetingContainer = document.getElementById('greeting-container');
   greetingContainer.innerText = greeting;
+  console.log("great");
+}
+
+async function fetchSentence() {
+    const response=await fetch("/data");
+    const sentence=await response.json();
+    console.log(sentence);
+    document.getElementById('sentence-container').innerText=sentence;
 }

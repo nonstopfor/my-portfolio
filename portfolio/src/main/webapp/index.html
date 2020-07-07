@@ -8,11 +8,37 @@
   </head>
   <body>
     <div id="content">
-      <h1>My Portfolio</h1>
-      <p>This is my portfolio.</p>
+      <h1>Zhexin's Portfolio</h1>
+      <p>I come from JiangXi Province and I am going to be a junior 
+          student in the following autumn. I study in Tsinghua University 
+          and I am a member of CoAI Lab which mainly cares about the problems
+          of conversational artificial intelligence. During my spare time, I 
+          like to play basketball or some games.
+      </p>
+      <p>Besides normal courses, I am willing to learn some up-to-date skills
+          related to computer science. I really hope to contribute to the advance 
+          of artificial conversational systems.
+      </p>
+      Some of my projects:
+      <ul>
+          <li>Travel Frog app based on CGAN finised during Google ML Winter Camp(2020).</li>
+          <li>A simple database as OOP course project.</li>
+          <li>Some small games like Sudoku, LinkGame, Gobang and so on.</li>
+          <li>A simple website to search for NBA news using django during summer semester.</li>
+      </ul>
+      My github profile: <a href="https://github.com/nonstopfor" target="_blank">Zhexin Zhang's profile</a>
+      <br><br>
+      Click here to get a random place:<br>
+      <button onclick="randomizeImage()">Place</button>
+      <div id="random-image-container"></div>
+
       <p>Click here to get a random message:</p>
       <button onclick="addRandomGreeting()">Hello</button>
       <div id="greeting-container"></div>
+
+      <p>Click here to get a famous sentence:</p>
+      <button onclick="fetchSentence()">Sentence</button>
+      <div id="sentence-container"></div>
     </div>
   </body>
 </html>

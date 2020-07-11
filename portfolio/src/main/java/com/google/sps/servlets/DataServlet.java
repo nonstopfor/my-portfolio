@@ -36,14 +36,11 @@ import javax.servlet.http.HttpServletResponse;
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  // private ArrayList<String> comments=new ArrayList<String>();
-
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     final String comment = request.getParameter("comment");
-    // comments.add(comment);
     Entity commentEntity = new Entity("comment");
-    long timestamp = System.currentTimeMillis();
+    final long timestamp = System.currentTimeMillis();
 
     commentEntity.setProperty("comment", comment);
     commentEntity.setProperty("timestamp", timestamp);

@@ -7,3 +7,11 @@
 #greeting-container {
   margin-top: 20px;
 }
+
+#sentence-container {
+  margin-top: 20px;
+}
+
+#random-image-container img {
+  margin-top: 20px;
+}

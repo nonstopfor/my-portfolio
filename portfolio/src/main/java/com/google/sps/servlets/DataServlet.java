@@ -14,36 +14,59 @@
 
 package com.google.sps.servlets;
 
-import java.util.*;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
+import com.google.appengine.api.datastore.Query.SortDirection;
 import com.google.gson.Gson;
+
 import java.io.IOException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.ArrayList;
+
+
 
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
 
-  private ArrayList<String> comments=new ArrayList<String>();
+  //private ArrayList<String> comments=new ArrayList<String>();
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    String comment=request.getParameter("comment");
-    comments.add(comment);
+    final String comment=request.getParameter("comment");
+    //comments.add(comment);
+    Entity commentEntity=new Entity("comment");
+    long timestamp = System.currentTimeMillis();
+
+    commentEntity.setProperty("comment",comment);
+    commentEntity.setProperty("timestamp", timestamp);
+
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+    datastore.put(commentEntity);
+
     response.sendRedirect("/index.html");
   }
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
     
-    Gson gson = new Gson();
-    
-    String json=gson.toJson(comments);
-    
+    ArrayList<String>comments=new ArrayList<String>();
+    Query query=new Query("comment").addSort("timestamp", SortDirection.DESCENDING);
+    DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
+
+    PreparedQuery results=datastore.prepare(query);
+    for(Entity entity: results.asIterable()){
+        comments.add((String)entity.getProperty("comment"));
+    }
+
     response.setContentType("application/json;");
 
-    response.getWriter().println(json);
+    response.getWriter().println(new Gson().toJson(comments));
   }
 }

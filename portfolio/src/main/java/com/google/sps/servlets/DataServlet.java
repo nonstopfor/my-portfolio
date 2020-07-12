@@ -46,13 +46,12 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     final String comment = request.getParameter("comment");
     Entity commentEntity = new Entity("comment");
-    Document doc =
-        Document.newBuilder().setContent(comment).setType(Document.Type.PLAIN_TEXT).build();
+    Document doc = Document.newBuilder().setContent(comment).setType(Document.Type.PLAIN_TEXT).build();
     LanguageServiceClient languageService = LanguageServiceClient.create();
     Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
     float score = sentiment.getScore();
     final long timestamp = System.currentTimeMillis();
-    
+
     commentEntity.setProperty("comment", comment);
     commentEntity.setProperty("timestamp", timestamp);
     commentEntity.setProperty("score", score);
@@ -75,7 +74,7 @@ public class DataServlet extends HttpServlet {
     for (Entity entity : results.asIterable()) {
       Map m = new HashMap();
       m.put("comment", (String) entity.getProperty("comment"));
-      m.put("score", String.format("%.2f",entity.getProperty("score")));
+      m.put("score", String.format("%.2f", entity.getProperty("score")));
       comments.add(m);
     }
 

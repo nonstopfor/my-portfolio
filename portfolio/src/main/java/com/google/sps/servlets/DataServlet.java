@@ -20,10 +20,16 @@ import com.google.appengine.api.datastore.Entity;
 import com.google.appengine.api.datastore.PreparedQuery;
 import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Query.SortDirection;
+import com.google.cloud.language.v1.Document;
+import com.google.cloud.language.v1.LanguageServiceClient;
+import com.google.cloud.language.v1.Sentiment;
 import com.google.gson.Gson;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -40,10 +46,17 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     final String comment = request.getParameter("comment");
     Entity commentEntity = new Entity("comment");
+    Document doc =
+        Document.newBuilder().setContent(comment).setType(Document.Type.PLAIN_TEXT).build();
+    LanguageServiceClient languageService = LanguageServiceClient.create();
+    Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
+    float score = sentiment.getScore();
     final long timestamp = System.currentTimeMillis();
-
+    
     commentEntity.setProperty("comment", comment);
     commentEntity.setProperty("timestamp", timestamp);
+    commentEntity.setProperty("score", score);
+    System.out.println(score);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(commentEntity);
@@ -54,13 +67,16 @@ public class DataServlet extends HttpServlet {
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-    ArrayList<String> comments = new ArrayList<String>();
+    ArrayList<Map> comments = new ArrayList<Map>();
     Query query = new Query("comment").addSort("timestamp", SortDirection.DESCENDING);
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
 
     PreparedQuery results = datastore.prepare(query);
     for (Entity entity : results.asIterable()) {
-      comments.add((String) entity.getProperty("comment"));
+      Map m = new HashMap();
+      m.put("comment", (String) entity.getProperty("comment"));
+      m.put("score", String.format("%.2f",entity.getProperty("score")));
+      comments.add(m);
     }
 
     response.setContentType("application/json;");

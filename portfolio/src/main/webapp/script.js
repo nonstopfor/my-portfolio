@@ -54,6 +54,6 @@ async function getComments() {
 
 function createListElement(text) {
     const liElement = document.createElement('li');
-    liElement.innerText = text.comment + " (The comment's sentiment score is " + (String)(text.sentiment_score) + ")";
+    liElement.innerText = text.comment + " (Sentiment score: " + (String)(text.sentiment_score) + ")";
     return liElement;
 }

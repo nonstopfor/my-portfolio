@@ -49,13 +49,12 @@ public class DataServlet extends HttpServlet {
     Document doc = Document.newBuilder().setContent(comment).setType(Document.Type.PLAIN_TEXT).build();
     LanguageServiceClient languageService = LanguageServiceClient.create();
     Sentiment sentiment = languageService.analyzeSentiment(doc).getDocumentSentiment();
-    float score = sentiment.getScore();
+    final float score = sentiment.getScore();
     final long timestamp = System.currentTimeMillis();
 
     commentEntity.setProperty("comment", comment);
     commentEntity.setProperty("timestamp", timestamp);
-    commentEntity.setProperty("score", score);
-    System.out.println(score);
+    commentEntity.setProperty("sentiment_score", score);
 
     DatastoreService datastore = DatastoreServiceFactory.getDatastoreService();
     datastore.put(commentEntity);
@@ -74,7 +73,7 @@ public class DataServlet extends HttpServlet {
     for (Entity entity : results.asIterable()) {
       Map m = new HashMap();
       m.put("comment", (String) entity.getProperty("comment"));
-      m.put("score", String.format("%.2f", entity.getProperty("score")));
+      m.put("sentiment_score", String.format("%.2f", entity.getProperty("sentiment_score")));
       comments.add(m);
     }
 

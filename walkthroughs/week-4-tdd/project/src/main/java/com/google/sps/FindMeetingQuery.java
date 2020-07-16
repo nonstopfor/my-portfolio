@@ -22,10 +22,14 @@ import java.util.ListIterator;
 import java.util.Set;
 
 public final class FindMeetingQuery {
+    /**
+    * Returns a collection of appropriate time for the new request.
+    *
+    * Given a set of existing events, a new request should be arranged at right time, 
+    * the restriction is that the attendees in the new request should be present at one
+    * meeting at a time.
+    */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    // Given a set of existing events, a new request should be arranged at right time
-    // the restriction is that the attendees in the new request should be present at one meeting at a time
-    // this function returns a collection of appropriate time for the new request
     Collection<String> requestAttendees = request.getAttendees();
     List<TimeRange> res = new LinkedList<>();
     res.add(TimeRange.WHOLE_DAY);
@@ -51,8 +55,12 @@ public final class FindMeetingQuery {
         }
         if (goodTime.contains(badTime)) {
           it.remove();
-          it.add(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
-          it.add(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
+          if(badTime.start() > goodTime.start()){
+            it.add(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
+          }
+          if(goodTime.end() > badTime.end()){
+            it.add(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
+          }
         } else if (badTime.contains(goodTime)) {
           it.remove();
         } else if (goodTime.contains(badTime.start())) {

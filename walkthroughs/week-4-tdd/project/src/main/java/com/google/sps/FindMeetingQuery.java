@@ -23,47 +23,44 @@ import java.util.Set;
 
 public final class FindMeetingQuery {
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+    // Given a set of existing events, a new request should be arranged at right time
+    // the restriction is that the attendees in the new request should be present at one meeting at a time
+    // this function returns a collection of appropriate time for the new request
     Collection<String> requestAttendees = request.getAttendees();
     List<TimeRange> res = new LinkedList<>();
     res.add(TimeRange.WHOLE_DAY);
-    for (Event e : events) {
-      Set<String> Attendees = e.getAttendees();
+    for (Event event : events) {
+      Set<String> Attendees = event.getAttendees();
       boolean flag = false;
-      for (String a : Attendees) {
-        if (requestAttendees.contains(a)) {
+      for (String attendee : Attendees) {
+        if (requestAttendees.contains(attendee)) {
           flag = true;
           break;
         }
       }
-      if (!flag){
+      if (!flag) {
         continue;
       }
-      TimeRange badTime = e.getWhen();
+      TimeRange badTime = event.getWhen();
       ListIterator it = res.listIterator();
       while (it.hasNext()) {
         TimeRange goodTime = (TimeRange) it.next();
-        if (goodTime.start() >= badTime.start() + badTime.duration())
+
+        if (!goodTime.overlaps(badTime)) {
           continue;
-        if (goodTime.start() < badTime.start()) {
-          if (badTime.start() >= goodTime.start() + goodTime.duration()) {
-            continue;
-          } else if (badTime.start() + badTime.duration() >= goodTime.start() + goodTime.duration()) {
-            it.set(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
-          } else {
-            it.set(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
-            it.add(TimeRange.fromStartDuration(badTime.start() + badTime.duration(),
-                goodTime.start() + goodTime.duration() - badTime.start() - badTime.duration()));
-          }
+        }
+        if (goodTime.contains(badTime)) {
+          it.remove();
+          it.add(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
+          it.add(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
+        } else if (badTime.contains(goodTime)) {
+          it.remove();
+        } else if (goodTime.contains(badTime.start())) {
+          it.set(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
         } else {
-          if (badTime.start() + badTime.duration() >= goodTime.start() + goodTime.duration()) {
-            it.remove();
-          } else {
-            it.set(TimeRange.fromStartDuration(badTime.start() + badTime.duration(),
-                goodTime.start() + goodTime.duration() - badTime.start() - badTime.duration()));
-          }
+          it.set(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
         }
       }
-
     }
     ListIterator it = res.listIterator();
     while (it.hasNext()) {

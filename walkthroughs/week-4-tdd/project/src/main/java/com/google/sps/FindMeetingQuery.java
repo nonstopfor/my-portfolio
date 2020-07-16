@@ -14,10 +14,69 @@
 
 package com.google.sps;
 
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Set;
 
 public final class FindMeetingQuery {
+    /**
+    * Returns a collection of appropriate time for the new request.
+    *
+    * Given a set of existing events, a new request should be arranged at right time, 
+    * the restriction is that the attendees in the new request should be present at one
+    * meeting at a time.
+    */
   public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
-    throw new UnsupportedOperationException("TODO: Implement this method.");
+    Collection<String> requestAttendees = request.getAttendees();
+    List<TimeRange> res = new LinkedList<>();
+    res.add(TimeRange.WHOLE_DAY);
+    for (Event event : events) {
+      Set<String> Attendees = event.getAttendees();
+      boolean flag = false;
+      for (String attendee : Attendees) {
+        if (requestAttendees.contains(attendee)) {
+          flag = true;
+          break;
+        }
+      }
+      if (!flag) {
+        continue;
+      }
+      TimeRange badTime = event.getWhen();
+      ListIterator it = res.listIterator();
+      while (it.hasNext()) {
+        TimeRange goodTime = (TimeRange) it.next();
+
+        if (!goodTime.overlaps(badTime)) {
+          continue;
+        }
+        if (goodTime.contains(badTime)) {
+          it.remove();
+          if(badTime.start() > goodTime.start()){
+            it.add(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
+          }
+          if(goodTime.end() > badTime.end()){
+            it.add(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
+          }
+        } else if (badTime.contains(goodTime)) {
+          it.remove();
+        } else if (goodTime.contains(badTime.start())) {
+          it.set(TimeRange.fromStartDuration(goodTime.start(), badTime.start() - goodTime.start()));
+        } else {
+          it.set(TimeRange.fromStartDuration(badTime.end(), goodTime.end() - badTime.end()));
+        }
+      }
+    }
+    ListIterator it = res.listIterator();
+    while (it.hasNext()) {
+      TimeRange goodTime = (TimeRange) it.next();
+      if (goodTime.duration() < request.getDuration()) {
+        it.remove();
+      }
+    }
+    return res;
   }
 }
